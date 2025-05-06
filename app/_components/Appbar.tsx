@@ -1,6 +1,6 @@
 "use client";
 import { useState } from "react";
-import { MessageSquare, DollarSign, Users, User, Menu, X } from "lucide-react";
+import { MessageSquare, DollarSign, Users, Menu, X } from "lucide-react";
 import Button from "./Button";
 import { cn } from "../utils";
 import Link from "next/link";
