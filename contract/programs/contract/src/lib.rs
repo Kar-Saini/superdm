@@ -49,7 +49,7 @@ pub mod contract {
         ])?;
 
         Ok(())
-        
+
     }
 }
 
@@ -67,6 +67,7 @@ pub struct DM {
 pub struct InitDM<'info> {
     #[account(mut)]
     pub user: Signer<'info>,
+    /// CHECK: receiver wallet
      #[account(mut)]
     pub influencer_wallet: UncheckedAccount<'info>,
     #[account(
@@ -77,6 +78,7 @@ pub struct InitDM<'info> {
         space = 8 + DM::INIT_SPACE
     )]
     pub dm : Account<'info, DM>, 
+    
     pub influencer_profile : Account<'info, InfluencerProfile>, 
     pub system_program: Program<'info, System>
 }

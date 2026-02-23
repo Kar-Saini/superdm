@@ -1,9 +1,5 @@
 "use client";
-import {
-  WalletConnectButton,
-  WalletMultiButton,
-} from "@solana/wallet-adapter-react-ui";
-import Button from "../_components/Button";
+
 import HeroAnimation from "../_components/HeroAnimation";
 
 const page = () => {
