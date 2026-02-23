@@ -1,15 +1,20 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { MessageSquare, DollarSign, Users, Menu, X } from "lucide-react";
 import Button from "./Button";
 import { cn } from "../utils";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { WalletMultiButton } from "@solana/wallet-adapter-react-ui";
+import { useConnection, useWallet } from "@solana/wallet-adapter-react";
+import { LAMPORTS_PER_SOL } from "@solana/web3.js";
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const [balance, setBalance] = useState<number | null>(null);
   const pathname = usePathname();
-
+  const { connection } = useConnection();
+  const { publicKey } = useWallet();
   const navItems = [
     {
       name: "DM",
@@ -32,18 +37,22 @@ const Navbar = () => {
     setIsOpen(!isOpen);
   };
 
+  useEffect(() => {
+    if (!publicKey) return;
+    connection.getBalance(publicKey).then((data) => setBalance(data));
+  }, [publicKey]);
+
   return (
-    <nav className="w-5/6 py-4 px-4 fixed top-0 z-50">
+    <nav className="w-5/6 py-2 px-4 fixed top-0 z-50">
       <div className="container mx-auto w-full">
-        <div className="bg-gradient-to-b from-neutral-900 to-neutral-800/95 backdrop-blur-md h-[70px] rounded-xl shadow-lg flex items-center justify-between px-6 w-full">
+        <div className="bg-linear-to-b from-neutral-900 to-neutral-800/95 backdrop-blur-md h-[70px] rounded-xl shadow-lg flex items-center justify-between px-6 w-full">
           <div className="flex items-center justify-between w-full">
             <Link href="/" className="mr-8">
               <h1 className="font-extrabold text-4xl tracking-widest text-emerald-400">
                 super<span className="text-white">DM</span>
               </h1>
             </Link>
-
-            <div className="hidden md:flex items-center space-x-1">
+            <div className="hidden sm:flex items-center space-x-1">
               {navItems.map((item) => (
                 <Link
                   key={item.name}
@@ -60,6 +69,14 @@ const Navbar = () => {
                 </Link>
               ))}
             </div>
+            <div className="flex flex-col">
+              <WalletMultiButton className="bg-pink-500" />
+              {publicKey && balance && (
+                <p className="text-xs text-neutral-200">
+                  Balance : {balance / LAMPORTS_PER_SOL} SOL
+                </p>
+              )}{" "}
+            </div>
           </div>
 
           <button
@@ -70,7 +87,6 @@ const Navbar = () => {
           </button>
         </div>
 
-        {/* Mobile menu */}
         {isOpen && (
           <div className="md:hidden absolute left-4 right-4 top-[90px] bg-neutral-900 border border-neutral-800 rounded-xl shadow-lg p-4">
             <div className="flex flex-col space-y-2">

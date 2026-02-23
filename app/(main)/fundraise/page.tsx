@@ -1,6 +1,6 @@
 "use client";
 import { useState } from "react";
-import Button from "../_components/Button";
+import Button from "../../_components/Button";
 
 const Fundraise = () => {
   const [fundraiserName, setFundraiserName] = useState("");
