@@ -12,7 +12,6 @@ const page = () => {
               Connect with your{" "}
               <span className="text-gradient-emerald">favorite creators</span>
             </h1>
-
             <p className="text-xl text-neutral-400 max-w-xl">
               SuperDM powers direct messages with the {`world's`} top
               influencers. Get noticed and build real connections through

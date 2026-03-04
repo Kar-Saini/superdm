@@ -11,7 +11,6 @@ const HeroAnimation = () => {
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
 
-    // Set canvas dimensions
     const updateSize = () => {
       canvas.width = canvas.offsetWidth;
       canvas.height = canvas.offsetHeight;
@@ -20,7 +19,6 @@ const HeroAnimation = () => {
     updateSize();
     window.addEventListener("resize", updateSize);
 
-    // Create particles
     const particles: Particle[] = [];
     const particleCount = 50;
 
@@ -43,7 +41,7 @@ const HeroAnimation = () => {
         speedX: (Math.random() - 0.5) * 0.5,
         speedY: (Math.random() - 0.5) * 0.5,
         color: `rgba(${Math.floor(Math.random() * 100 + 16)}, ${Math.floor(
-          Math.random() * 100 + 180
+          Math.random() * 100 + 180,
         )}, ${Math.floor(Math.random() * 100 + 140)}, `,
         alpha: Math.random() * 0.5 + 0.1,
       });
@@ -79,7 +77,7 @@ const HeroAnimation = () => {
     const drawMessagingInterface = (
       ctx: CanvasRenderingContext2D,
       width: number,
-      height: number
+      height: number,
     ) => {
       // Create a rounded rectangle for the phone mockup
       const phoneWidth = width * 0.85;
@@ -100,7 +98,7 @@ const HeroAnimation = () => {
         phoneY + 30,
         phoneWidth - 20,
         phoneHeight - 40,
-        phoneRadius - 5
+        phoneRadius - 5,
       );
       ctx.fill();
 
@@ -112,7 +110,7 @@ const HeroAnimation = () => {
         phoneWidth * 0.6,
         40,
         "right",
-        "rgba(16, 185, 129, 0.8)"
+        "rgba(16, 185, 129, 0.8)",
       );
       drawMessageBubble(
         ctx,
@@ -121,7 +119,7 @@ const HeroAnimation = () => {
         phoneWidth * 0.6,
         60,
         "left",
-        "rgba(40, 40, 45, 0.8)"
+        "rgba(40, 40, 45, 0.8)",
       );
       drawMessageBubble(
         ctx,
@@ -130,7 +128,7 @@ const HeroAnimation = () => {
         phoneWidth * 0.7,
         50,
         "right",
-        "rgba(16, 185, 129, 0.8)"
+        "rgba(16, 185, 129, 0.8)",
       );
 
       // Payment badge
@@ -157,7 +155,7 @@ const HeroAnimation = () => {
         15,
         badgeX,
         badgeY,
-        30
+        30,
       );
       gradient.addColorStop(0, "rgba(16, 185, 129, 0.4)");
       gradient.addColorStop(1, "rgba(16, 185, 129, 0)");
@@ -171,7 +169,7 @@ const HeroAnimation = () => {
       y: number,
       width: number,
       height: number,
-      radius: number
+      radius: number,
     ) => {
       ctx.beginPath();
       ctx.moveTo(x + radius, y);
@@ -189,7 +187,7 @@ const HeroAnimation = () => {
       width: number,
       height: number,
       align: "left" | "right",
-      color: string
+      color: string,
     ) => {
       const radius = 10;
       const bubbleX = align === "right" ? x : x - width;

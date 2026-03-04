@@ -1,116 +1,67 @@
-use anchor_lang::prelude::*;
-
 declare_id!("72NEPQQkE1kYQ1A2fMUXxkcCbya7vf7nxVvJdpBrJeCC");
+use anchor_lang::prelude::*;
+use instructions::*;
+
+pub mod error;
+pub mod instructions;
+pub mod state;
 
 #[program]
 pub mod contract {
-    use anchor_lang::prelude::program::invoke;
 
     use super::*;
+    use anchor_lang::prelude::program::invoke;
 
     pub fn init_influencer_profile(
-        ctx:Context<InitInfluencerProfile>,
-        name : String, 
-        categories:String
-    )->Result<()>{
+        ctx: Context<InitInfluencerProfile>,
+        name: String,
+        categories: String,
+    ) -> Result<()> {
         let influencer_profile = &mut ctx.accounts.influencer_profile;
-        influencer_profile.pub_key = ctx.accounts.user.key();
         influencer_profile.name = name;
         influencer_profile.categories = categories;
+
+        influencer_profile.public_key = *ctx.accounts.influencer.key;
         Ok(())
     }
 
-    pub fn init_DM(
-        ctx:Context<InitDM>, 
-        message: String, 
-        amount:u64
+    pub fn init_user_profile(ctx: Context<InitUserProfile>) -> Result<()> {
+        let user_profile = &mut ctx.accounts.user_profile;
+        user_profile.dm_count = 0;
+        user_profile.owner = user_profile.key();
+        Ok(())
+    }
 
-    )->Result<()>{
-
+    pub fn init_dm(
+        ctx: Context<InitDm>,
+        sol_attached: u64,
+        message: String,
+        _user_profile_dm_count: u64,
+    ) -> Result<()> {
         let dm = &mut ctx.accounts.dm;
-        let owner = &mut ctx.accounts.user;
-        let influencer = &mut ctx.accounts.influencer_profile;
+        let sender = &mut ctx.accounts.sender;
+        let influencer_profile = &ctx.accounts.influencer_profile;
+        let system_program = &ctx.accounts.system_program;
+        let user_profile = &mut ctx.accounts.user_profile;
 
         dm.message = message;
-        dm.influencer_pubkey = influencer.key();
-        dm.owner_pubkey = owner.key();
+        dm.sender_pubkey = sender.key();
+        dm.sol_attached = sol_attached;
 
-        let ix = system_instruction::transfer(owner.key, &influencer.pub_key, amount);
-
-        require!(ctx.accounts.influencer_profile.pub_key==ctx.accounts.influencer_wallet.key(),
-                CustomError::InvalidInfluencerWallet);
+        let ix =
+            system_instruction::transfer(&sender.key(), &influencer_profile.key(), sol_attached);
 
         invoke(
-            &ix, 
+            &ix,
             &[
-            owner.to_account_info(), 
-            ctx.accounts.influencer_wallet.to_account_info(), 
-            ctx.accounts.system_program.to_account_info()
-        ])?;
+                sender.clone().to_account_info(),
+                influencer_profile.clone().to_account_info(),
+                system_program.clone().to_account_info(),
+            ],
+        )?;
+
+        user_profile.dm_count += 1;
 
         Ok(())
-
     }
-}
-
-#[account]
-#[derive(InitSpace)]
-pub struct DM {
-    pub owner_pubkey: Pubkey,
-    pub influencer_pubkey: Pubkey,
-    #[max_len(100)]
-    pub message: String,
-    pub amount : u64
-}
-
-#[derive(Accounts)]
-pub struct InitDM<'info> {
-    #[account(mut)]
-    pub user: Signer<'info>,
-    /// CHECK: receiver wallet
-     #[account(mut)]
-    pub influencer_wallet: UncheckedAccount<'info>,
-    #[account(
-        init, 
-        payer = user, 
-        seeds = [b"dm", user.key().as_ref()], 
-        bump, 
-        space = 8 + DM::INIT_SPACE
-    )]
-    pub dm : Account<'info, DM>, 
-    
-    pub influencer_profile : Account<'info, InfluencerProfile>, 
-    pub system_program: Program<'info, System>
-}
-
-#[account]
-#[derive(InitSpace)]
-pub struct InfluencerProfile {
-    #[max_len(20)]
-    pub name: String,
-    #[max_len(40)]
-    pub categories: String,
-    pub pub_key: Pubkey,
-}
-
-#[derive(Accounts)]
-pub struct InitInfluencerProfile<'info>{
-    #[account(mut)]
-    pub user: Signer<'info>, 
-    #[account(
-        init, 
-        space = 8 + InfluencerProfile::INIT_SPACE, 
-        payer = user, 
-        seeds = [b"infleuncer", user.key().as_ref()], 
-        bump
-    )]
-    pub influencer_profile: Account<'info, InfluencerProfile>, 
-    pub system_program : Program<'info, System>
-}
-
-
-#[error_code]
-pub enum CustomError{
-    #[msg("Invalid influencer wallet")]
-    InvalidInfluencerWallet
 }

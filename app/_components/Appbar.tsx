@@ -1,4 +1,5 @@
 "use client";
+
 import { useEffect, useState } from "react";
 import { MessageSquare, DollarSign, Users, Menu, X } from "lucide-react";
 import Button from "./Button";
@@ -6,15 +7,12 @@ import { cn } from "../utils";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { WalletMultiButton } from "@solana/wallet-adapter-react-ui";
-import { useConnection, useWallet } from "@solana/wallet-adapter-react";
-import { LAMPORTS_PER_SOL } from "@solana/web3.js";
 
 const Navbar = () => {
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
   const [isOpen, setIsOpen] = useState(false);
-  const [balance, setBalance] = useState<number | null>(null);
   const pathname = usePathname();
-  const { connection } = useConnection();
-  const { publicKey } = useWallet();
   const navItems = [
     {
       name: "DM",
@@ -36,12 +34,7 @@ const Navbar = () => {
   const toggleMenu = () => {
     setIsOpen(!isOpen);
   };
-
-  useEffect(() => {
-    if (!publicKey) return;
-    connection.getBalance(publicKey).then((data) => setBalance(data));
-  }, [publicKey]);
-
+  if (!mounted) return <></>;
   return (
     <nav className="w-5/6 py-2 px-4 fixed top-0 z-50">
       <div className="container mx-auto w-full">
@@ -61,7 +54,7 @@ const Navbar = () => {
                     "px-4 py-2 rounded-lg flex items-center gap-2 transition-colors",
                     pathname === item.path
                       ? "bg-neutral-800 text-emerald-400"
-                      : "text-neutral-400 hover:text-white hover:bg-neutral-800/50"
+                      : "text-neutral-400 hover:text-white hover:bg-neutral-800/50",
                   )}
                 >
                   {item.icon}
@@ -71,11 +64,6 @@ const Navbar = () => {
             </div>
             <div className="flex flex-col">
               <WalletMultiButton className="bg-pink-500" />
-              {publicKey && balance && (
-                <p className="text-xs text-neutral-200">
-                  Balance : {balance / LAMPORTS_PER_SOL} SOL
-                </p>
-              )}{" "}
             </div>
           </div>
 
@@ -98,7 +86,7 @@ const Navbar = () => {
                     "px-4 py-3 rounded-lg flex items-center gap-3",
                     pathname === item.path
                       ? "bg-neutral-800 text-emerald-400"
-                      : "text-neutral-400 hover:text-white hover:bg-neutral-800/50"
+                      : "text-neutral-400 hover:text-white hover:bg-neutral-800/50",
                   )}
                   onClick={() => setIsOpen(false)}
                 >
