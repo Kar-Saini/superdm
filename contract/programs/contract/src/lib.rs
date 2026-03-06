@@ -40,6 +40,7 @@ pub mod contract {
     ) -> Result<()> {
         let dm = &mut ctx.accounts.dm;
         let sender = &mut ctx.accounts.sender;
+        let influencer = &mut ctx.accounts.influencer;
         let influencer_profile = &ctx.accounts.influencer_profile;
         let system_program = &ctx.accounts.system_program;
         let user_profile = &mut ctx.accounts.user_profile;
@@ -48,14 +49,13 @@ pub mod contract {
         dm.sender_pubkey = sender.key();
         dm.sol_attached = sol_attached;
 
-        let ix =
-            system_instruction::transfer(&sender.key(), &influencer_profile.key(), sol_attached);
+        let ix = system_instruction::transfer(&sender.key(), &influencer.key(), sol_attached);
 
         invoke(
             &ix,
             &[
-                sender.clone().to_account_info(),
-                influencer_profile.clone().to_account_info(),
+                sender.to_account_info(),
+                influencer.to_account_info(),
                 system_program.clone().to_account_info(),
             ],
         )?;

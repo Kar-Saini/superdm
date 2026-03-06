@@ -2,38 +2,55 @@
 
 import { useEffect, useState } from "react";
 import { MessageSquare, DollarSign, Users, Menu, X } from "lucide-react";
-import Button from "./Button";
 import { cn } from "../utils";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { WalletMultiButton } from "@solana/wallet-adapter-react-ui";
+import { connection, PROGRAM_ID } from "../lib/constants";
+import { useWallet } from "@solana/wallet-adapter-react";
+import { LAMPORTS_PER_SOL, PublicKey } from "@solana/web3.js";
+import useProgram from "../hooks/useProgram";
+import { BN } from "@coral-xyz/anchor";
+const navItems = [
+  {
+    name: "DM",
+    path: "/superdm",
+    icon: <MessageSquare className="h-4 w-4" />,
+  },
 
+  {
+    name: "Influencer",
+    path: "/influencer",
+    icon: <Users className="h-4 w-4" />,
+  },
+];
 const Navbar = () => {
   const [mounted, setMounted] = useState(false);
+  const [balance, setBalance] = useState<number | null>(null);
+  const wallet = useWallet();
+  const program = useProgram();
+  const [userProfileAccount, setuserProfileAccount] = useState<any>();
   useEffect(() => setMounted(true), []);
-  const [isOpen, setIsOpen] = useState(false);
+  useEffect(() => {
+    async function getBalanace() {
+      if (!wallet.publicKey) return;
+      const bal = await connection.getBalance(wallet.publicKey);
+      setBalance(bal / LAMPORTS_PER_SOL);
+    }
+    async function getUserProfile() {
+      if (!wallet.publicKey) return;
+      const [userPda] = PublicKey.findProgramAddressSync(
+        [Buffer.from("user_profile"), wallet.publicKey?.toBuffer()],
+        PROGRAM_ID,
+      );
+      const userProfile = await program.account.userProfile.fetch(userPda);
+      setuserProfileAccount(userProfile);
+    }
+    getBalanace();
+    getUserProfile();
+  }, [wallet]);
   const pathname = usePathname();
-  const navItems = [
-    {
-      name: "DM",
-      path: "/superdm",
-      icon: <MessageSquare className="h-4 w-4" />,
-    },
-    {
-      name: "Fundraise",
-      path: "/fundraise",
-      icon: <DollarSign className="h-4 w-4" />,
-    },
-    {
-      name: "Influencer",
-      path: "/influencer",
-      icon: <Users className="h-4 w-4" />,
-    },
-  ];
 
-  const toggleMenu = () => {
-    setIsOpen(!isOpen);
-  };
   if (!mounted) return <></>;
   return (
     <nav className="w-5/6 py-2 px-4 fixed top-0 z-50">
@@ -45,7 +62,7 @@ const Navbar = () => {
                 super<span className="text-white">DM</span>
               </h1>
             </Link>
-            <div className="hidden sm:flex items-center space-x-1">
+            <div className="hidden md:flex items-center space-x-1">
               {navItems.map((item) => (
                 <Link
                   key={item.name}
@@ -62,48 +79,19 @@ const Navbar = () => {
                 </Link>
               ))}
             </div>
-            <div className="flex flex-col">
+            <div className="flex gap-2 items-center text-neutral-500 text-sm">
+              <p className="">Balance : {balance?.toFixed(4)}</p>
+              {userProfileAccount && (
+                <>
+                  <p>|</p>
+                  <p>DM Count : {userProfileAccount.dmCount.toNumber()}</p>
+                  <p>|</p>
+                </>
+              )}
               <WalletMultiButton className="bg-pink-500" />
             </div>
           </div>
-
-          <button
-            onClick={toggleMenu}
-            className="md:hidden text-white focus:outline-none"
-          >
-            {isOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
-          </button>
         </div>
-
-        {isOpen && (
-          <div className="md:hidden absolute left-4 right-4 top-[90px] bg-neutral-900 border border-neutral-800 rounded-xl shadow-lg p-4">
-            <div className="flex flex-col space-y-2">
-              {navItems.map((item) => (
-                <Link
-                  key={item.name}
-                  href={item.path}
-                  className={cn(
-                    "px-4 py-3 rounded-lg flex items-center gap-3",
-                    pathname === item.path
-                      ? "bg-neutral-800 text-emerald-400"
-                      : "text-neutral-400 hover:text-white hover:bg-neutral-800/50",
-                  )}
-                  onClick={() => setIsOpen(false)}
-                >
-                  {item.icon}
-                  {item.name}
-                </Link>
-              ))}
-              <div className="border-t border-neutral-800 my-2 pt-2">
-                <Button
-                  title="Connect Wallet"
-                  variant="outline"
-                  className="w-full border-emerald-600 text-emerald-400 hover:bg-emerald-900/20"
-                />
-              </div>
-            </div>
-          </div>
-        )}
       </div>
     </nav>
   );

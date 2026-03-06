@@ -9,7 +9,7 @@ import { useWallet } from "@solana/wallet-adapter-react";
 import { connection, PROGRAM_ID } from "@/app/lib/constants";
 import toast from "react-hot-toast";
 import { BN } from "@coral-xyz/anchor";
-
+import * as anchor from "@coral-xyz/anchor";
 const SuperDM = () => {
   const [influencerAddress, setInfluencerAddress] = useState<string>("");
   const [message, setMessage] = useState("");
@@ -22,7 +22,7 @@ const SuperDM = () => {
 
   const program = useProgram();
   const wallet = useWallet();
-  console.log(selectedInfluencer);
+
   useEffect(() => {
     if (selectedInfluencer)
       setInfluencerAddress(selectedInfluencer.publicKey.toBase58());
@@ -30,14 +30,11 @@ const SuperDM = () => {
 
     async function getUserProfile() {
       if (!wallet.publicKey) return;
-
       const [pda] = PublicKey.findProgramAddressSync(
         [Buffer.from("user_profile"), wallet.publicKey.toBuffer()],
         PROGRAM_ID,
       );
-
       setUserProfilePda(pda);
-
       try {
         const account = await program.account.userProfile.fetchNullable(pda);
         setUserProfilePdaAccount(account);
@@ -45,70 +42,105 @@ const SuperDM = () => {
         setUserProfilePdaAccount(null);
       }
     }
-
     getUserProfile();
   }, [wallet.publicKey, program, selectedInfluencer]);
 
   async function handleOnClick() {
-    if (
-      influencerAddress === "" ||
-      amount === "" ||
-      message === "" ||
-      !wallet.publicKey ||
-      !selectedInfluencer
-    ) {
+    if (!wallet.publicKey || !program) return;
+
+    // 1. Basic Validation
+    if (!influencerAddress || !amount || !message || !selectedInfluencer) {
       toast.error("Invalid fields");
       return;
     }
 
     const balance = await connection.getBalance(wallet.publicKey);
-
     if (Number(amount) * LAMPORTS_PER_SOL > balance) {
       toast.error("Insufficient Balance");
       return;
     }
 
-    let profile = userProfilePdaAccount;
+    // 2. Ensure User Profile exists and is fetched
+    let currentProfile = userProfilePdaAccount;
 
-    if (!profile) {
-      toast.loading("Initializing User Profile");
-
+    if (!currentProfile) {
+      const loadingToast = toast.loading("Initializing User Profile...");
       try {
         await program.methods
           .initUserProfile()
           .accounts({
             user: wallet.publicKey,
+            // userProfile is usually derived automatically by Anchor if seeds are in IDL
           })
           .rpc();
 
-        profile = await program.account.userProfile.fetch(
+        // Fetch the newly created account immediately
+        currentProfile = await program.account.userProfile.fetch(
           userProfilePda as PublicKey,
         );
-
-        setUserProfilePdaAccount(profile);
-
+        setUserProfilePdaAccount(currentProfile);
+        toast.dismiss(loadingToast);
         toast.success("User Profile Created");
       } catch (err) {
-        console.log(err);
+        console.error("Profile Init Error:", err);
+        toast.dismiss(loadingToast);
         toast.error("Profile creation failed");
         return;
       }
     }
 
     try {
-      console.log("User Profile", profile);
+      const dmCount = currentProfile.dmCount; // This is a BN
+
+      // 3. Manually derive DM PDA with STRICT 8-byte padding
+      // Rust's .to_le_bytes() for u64 ALWAYS produces 8 bytes.
+      // JS's .toArrayLike(Buffer, "le", 8) ensures we match that exactly.
+      const [dmPda] = PublicKey.findProgramAddressSync(
+        [
+          Buffer.from("dm"),
+          wallet.publicKey.toBuffer(),
+          dmCount.toArrayLike(Buffer, "le", 8),
+        ],
+        program.programId,
+      );
+
+      // 4. Manually derive Influencer Profile PDA
+      const [influencerProfilePda] = PublicKey.findProgramAddressSync(
+        [
+          Buffer.from("influencer"),
+          selectedInfluencer.account.publicKey.toBuffer(),
+        ],
+        program.programId,
+      );
+
+      // 5. Execute Transaction
       const tx = await program.methods
-        .initDm(new BN(amount), message, new BN(100))
+        .initDm(
+          new BN(Number(amount) * LAMPORTS_PER_SOL),
+          message,
+          dmCount, // Pass the count as the u64 argument
+        )
         .accounts({
           sender: wallet.publicKey,
+          userProfile: userProfilePda,
+          dm: dmPda,
           influencer: selectedInfluencer.account.publicKey,
+          influencerProfile: influencerProfilePda,
+          systemProgram: anchor.web3.SystemProgram.programId,
         })
         .rpc();
 
-      console.log(tx);
+      console.log("Transaction Signature:", tx);
       toast.success("SuperDM sent!");
+
+      // Optional: Refresh local state so the next DM uses dmCount + 1
+      const updatedProfile = await program.account.userProfile.fetch(
+        userProfilePda as PublicKey,
+      );
+      setUserProfilePdaAccount(updatedProfile);
     } catch (err) {
-      console.log(err);
+      console.error("DM Error:", err);
+      // If you see "Seed constraint violated" now, log the seeds to compare
       toast.error("Failed to send DM");
     }
   }

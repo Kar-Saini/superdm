@@ -21,7 +21,6 @@ const Page = () => {
   });
   const [loading, setLoading] = useState(false);
   const allInfluencers = useAllInfluencers();
-  console.log(allInfluencers);
   async function getCurrentUserInfluencerProfile() {
     if (!program || !wallet.publicKey) return;
 
@@ -56,7 +55,6 @@ const Page = () => {
         })
         .rpc();
 
-      console.log("TX:", tx);
       toast.success("Influencer Registered Successfully 🚀");
 
       await getCurrentUserInfluencerProfile();

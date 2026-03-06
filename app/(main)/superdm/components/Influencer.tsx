@@ -16,7 +16,6 @@ const Influencers = ({
   setSelectedInfluencer: (influencer: Influencer | null) => void;
 }) => {
   const allInfluencers = useAllInfluencers();
-  console.log(allInfluencers);
   return (
     <div
       className=" hidden md:flex flex-col gap-4 borders border-neutral-800 rounded-2xl p-8 
