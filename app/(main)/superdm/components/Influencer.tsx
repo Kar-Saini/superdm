@@ -44,7 +44,7 @@ const Influencers = ({
               }}
             >
               <div className="w-12 h-12 rounded-full bg-linear-to-br from-emerald-400 to-blue-600 flex items-center justify-center text-white text-lg font-bold shadow">
-                {influencer.account.name}
+                {influencer.account.name[0]}
               </div>
 
               <div className="flex-1">

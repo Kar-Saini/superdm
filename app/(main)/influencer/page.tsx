@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import Button from "../../_components/Button";
 import { useWallet } from "@solana/wallet-adapter-react";
 import toast from "react-hot-toast";
@@ -8,44 +8,51 @@ import { PROGRAM_ID } from "@/app/lib/constants";
 import { PublicKey } from "@solana/web3.js";
 import useProgram from "@/app/hooks/useProgram";
 import useAllInfluencers from "@/app/hooks/useAllInfluencers";
-
+interface InfluencerType {
+  name: string;
+  categories: string;
+  publicKey: PublicKey;
+}
 const Page = () => {
   const wallet = useWallet();
   const program = useProgram();
   const [showModal, setShowModal] = useState(false);
   const [currentUserInfluencerProfile, setCurrentUserInfluencerProfile] =
-    useState<any>(null);
+    useState<InfluencerType | null>(null);
   const [newInfluencerData, setNewInfluencerData] = useState({
     name: "",
     categories: "",
   });
   const [loading, setLoading] = useState(false);
   const allInfluencers = useAllInfluencers();
-  async function getCurrentUserInfluencerProfile() {
-    if (!program || !wallet.publicKey) return;
+  const getCurrentUserInfluencerProfile = useCallback(
+    async function getCurrentUserInfluencerProfile() {
+      if (!program || !wallet.publicKey) return;
 
-    const [pda] = PublicKey.findProgramAddressSync(
-      [Buffer.from("influencer"), wallet.publicKey.toBuffer()],
-      PROGRAM_ID,
-    );
+      const [pda] = PublicKey.findProgramAddressSync(
+        [Buffer.from("influencer"), wallet.publicKey.toBuffer()],
+        PROGRAM_ID,
+      );
 
-    try {
-      const account = await program.account.influencerProfile.fetch(pda);
-      setCurrentUserInfluencerProfile(account);
-    } catch {
-      setCurrentUserInfluencerProfile(null);
-    }
-  }
+      try {
+        const account = await program.account.influencerProfile.fetch(pda);
+        setCurrentUserInfluencerProfile(account);
+      } catch {
+        setCurrentUserInfluencerProfile(null);
+      }
+    },
+    [program, wallet.publicKey],
+  );
 
   useEffect(() => {
     getCurrentUserInfluencerProfile();
-  }, [program]);
+  }, [program, getCurrentUserInfluencerProfile]);
 
   async function handleInfluencerRegistration() {
     if (!program || !wallet.publicKey) return;
     setLoading(true);
     try {
-      const tx = await program.methods
+      await program.methods
         .initInfluencerProfile(
           newInfluencerData.name,
           newInfluencerData.categories,
@@ -65,7 +72,7 @@ const Page = () => {
     }
     setLoading(false);
   }
-
+  console.log(currentUserInfluencerProfile);
   return (
     <div className="flex-1 mt-[100px] w-full px-6">
       <div className="flex justify-between items-center py-4">

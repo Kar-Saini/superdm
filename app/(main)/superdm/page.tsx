@@ -9,7 +9,11 @@ import { useWallet } from "@solana/wallet-adapter-react";
 import { connection, PROGRAM_ID } from "@/app/lib/constants";
 import toast from "react-hot-toast";
 import { BN } from "@coral-xyz/anchor";
-
+import { useRouter } from "next/navigation";
+interface PdaAccountType {
+  dmCount: number;
+  owner: PublicKey;
+}
 const SuperDM = () => {
   const [influencerAddress, setInfluencerAddress] = useState<string>("");
   const [message, setMessage] = useState("");
@@ -18,10 +22,12 @@ const SuperDM = () => {
     useState<Influencer | null>(null);
 
   const [userProfilePda, setUserProfilePda] = useState<PublicKey | null>(null);
-  const [userProfilePdaAccount, setUserProfilePdaAccount] = useState<any>(null);
+  const [userProfilePdaAccount, setUserProfilePdaAccount] =
+    useState<PdaAccountType | null>(null);
 
   const program = useProgram();
   const wallet = useWallet();
+  const router = useRouter();
 
   useEffect(() => {
     if (selectedInfluencer)
@@ -47,7 +53,6 @@ const SuperDM = () => {
 
   async function handleOnClick() {
     if (!wallet.publicKey || !program) return;
-
     if (!influencerAddress || !amount || !message || !selectedInfluencer) {
       toast.error("Invalid fields");
       return;
@@ -104,16 +109,16 @@ const SuperDM = () => {
     } catch (err) {
       console.error("DM Error:", err);
       toast.error("Failed to send DM");
+    } finally {
+      setAmount("");
+      setMessage("");
+      setSelectedInfluencer(null);
+      router.push("/dashboard");
     }
   }
 
-  async function handleProfileDelete() {
-    const tx = await program.methods.deleteUserProfile().rpc();
-    console.log(tx);
-  }
-
-  console.log("client  " + userProfilePda?.toString());
   console.log(userProfilePdaAccount);
+
   return (
     <div className="w-full text-neutral-400 md:flex flex-col pt-[85px] h-screen justify-center">
       <div className="max-w-7xl mx-auto w-full flex lg:flex-row gap-8 px-4">
@@ -193,13 +198,6 @@ const SuperDM = () => {
             selectedInfluencer={selectedInfluencer}
             setSelectedInfluencer={setSelectedInfluencer}
           />
-          <div>{JSON.stringify(userProfilePdaAccount)}</div>
-          <button
-            className="bg-neutral-700 px-2 py-1 rounded-lg"
-            onClick={handleProfileDelete}
-          >
-            Delete User Profile
-          </button>
         </div>
       </div>
     </div>

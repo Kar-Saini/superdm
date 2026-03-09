@@ -7,7 +7,6 @@ import {
 import { WalletModalProvider } from "@solana/wallet-adapter-react-ui";
 import Appbar from "../_components/Appbar";
 import "@solana/wallet-adapter-react-ui/styles.css";
-import { clusterApiUrl } from "@solana/web3.js";
 import { Toaster } from "react-hot-toast";
 const MainLayout = ({
   children,
@@ -15,7 +14,9 @@ const MainLayout = ({
   children: React.ReactNode;
 }>) => {
   return (
-    <ConnectionProvider endpoint={clusterApiUrl("devnet")}>
+    <ConnectionProvider
+      endpoint={"https://solana-devnet.g.alchemy.com/v2/0GsshqkyphVHGZLjq_QTS"}
+    >
       <WalletProvider wallets={[]} autoConnect>
         <Toaster />
         <WalletModalProvider>

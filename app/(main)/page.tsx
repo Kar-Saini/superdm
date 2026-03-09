@@ -4,7 +4,7 @@ import HeroAnimation from "../_components/HeroAnimation";
 
 const page = () => {
   return (
-    <div className=" flex flex-col text-neutral-400 h-screen  justify-center pt-10 px-2">
+    <div className="py-28 lg:py-0 flex flex-col text-neutral-400 h-screen  justify-center pt-10 px-2">
       <div className=" mx-auto flex flex-col lg:flex-row items-center justify-between gap-12">
         <div className="flex-1 space-y-2">
           <div className="space-y-10">

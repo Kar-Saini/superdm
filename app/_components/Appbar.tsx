@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { MessageSquare, DollarSign, Users, Menu, X } from "lucide-react";
+import { MessageSquare, Users } from "lucide-react";
 import { cn } from "../utils";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -11,6 +11,12 @@ import { useWallet } from "@solana/wallet-adapter-react";
 import { LAMPORTS_PER_SOL, PublicKey } from "@solana/web3.js";
 import useProgram from "../hooks/useProgram";
 import { MdDashboard } from "react-icons/md";
+
+interface UserProfile {
+  dmCount: number;
+  owner: PublicKey;
+}
+
 const navItems = [
   {
     name: "DM",
@@ -33,7 +39,8 @@ const Navbar = () => {
   const [balance, setBalance] = useState<number | null>(null);
   const wallet = useWallet();
   const program = useProgram();
-  const [userProfileAccount, setuserProfileAccount] = useState<any>();
+  const [userProfileAccount, setuserProfileAccount] =
+    useState<UserProfile | null>(null);
   useEffect(() => setMounted(true), []);
   useEffect(() => {
     async function getBalanace() {
@@ -52,9 +59,9 @@ const Navbar = () => {
     }
     getBalanace();
     getUserProfile();
-  }, [wallet]);
+  }, [wallet, program.account.userProfile]);
   const pathname = usePathname();
-
+  console.log(userProfileAccount);
   if (!mounted) return <></>;
   return (
     <nav className="w-5/6 py-2 px-4 fixed top-0 z-50">
@@ -82,12 +89,12 @@ const Navbar = () => {
               </Link>
             ))}
           </div>
-          <div className="flex gap-2 items-center text-neutral-500 text-sm">
+          <div className=" gap-2 items-center text-neutral-500 text-sm hidden md:flex">
             <p className="">Balance : {balance?.toFixed(4)}</p>
             {userProfileAccount && (
               <>
                 <p>|</p>
-                <p>DM Count : {userProfileAccount.dmCount.toNumber()}</p>
+                <p>User DM Count : {Number(userProfileAccount.dmCount)}</p>
                 <p>|</p>
               </>
             )}
