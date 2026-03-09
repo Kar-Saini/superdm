@@ -9,7 +9,7 @@ import { useWallet } from "@solana/wallet-adapter-react";
 import { connection, PROGRAM_ID } from "@/app/lib/constants";
 import toast from "react-hot-toast";
 import { BN } from "@coral-xyz/anchor";
-import * as anchor from "@coral-xyz/anchor";
+
 const SuperDM = () => {
   const [influencerAddress, setInfluencerAddress] = useState<string>("");
   const [message, setMessage] = useState("");
@@ -48,7 +48,6 @@ const SuperDM = () => {
   async function handleOnClick() {
     if (!wallet.publicKey || !program) return;
 
-    // 1. Basic Validation
     if (!influencerAddress || !amount || !message || !selectedInfluencer) {
       toast.error("Invalid fields");
       return;
@@ -60,7 +59,6 @@ const SuperDM = () => {
       return;
     }
 
-    // 2. Ensure User Profile exists and is fetched
     let currentProfile = userProfilePdaAccount;
 
     if (!currentProfile) {
@@ -70,11 +68,9 @@ const SuperDM = () => {
           .initUserProfile()
           .accounts({
             user: wallet.publicKey,
-            // userProfile is usually derived automatically by Anchor if seeds are in IDL
           })
           .rpc();
 
-        // Fetch the newly created account immediately
         currentProfile = await program.account.userProfile.fetch(
           userProfilePda as PublicKey,
         );
@@ -90,60 +86,34 @@ const SuperDM = () => {
     }
 
     try {
-      const dmCount = currentProfile.dmCount; // This is a BN
-
-      // 3. Manually derive DM PDA with STRICT 8-byte padding
-      // Rust's .to_le_bytes() for u64 ALWAYS produces 8 bytes.
-      // JS's .toArrayLike(Buffer, "le", 8) ensures we match that exactly.
-      const [dmPda] = PublicKey.findProgramAddressSync(
-        [
-          Buffer.from("dm"),
-          wallet.publicKey.toBuffer(),
-          dmCount.toArrayLike(Buffer, "le", 8),
-        ],
-        program.programId,
-      );
-
-      // 4. Manually derive Influencer Profile PDA
-      const [influencerProfilePda] = PublicKey.findProgramAddressSync(
-        [
-          Buffer.from("influencer"),
-          selectedInfluencer.account.publicKey.toBuffer(),
-        ],
-        program.programId,
-      );
-
-      // 5. Execute Transaction
       const tx = await program.methods
-        .initDm(
-          new BN(Number(amount) * LAMPORTS_PER_SOL),
-          message,
-          dmCount, // Pass the count as the u64 argument
-        )
+        .initDm(new BN(Number(amount) * LAMPORTS_PER_SOL), message)
         .accounts({
           sender: wallet.publicKey,
-          userProfile: userProfilePda,
-          dm: dmPda,
           influencer: selectedInfluencer.account.publicKey,
-          influencerProfile: influencerProfilePda,
-          systemProgram: anchor.web3.SystemProgram.programId,
         })
         .rpc();
 
       console.log("Transaction Signature:", tx);
       toast.success("SuperDM sent!");
 
-      // Optional: Refresh local state so the next DM uses dmCount + 1
       const updatedProfile = await program.account.userProfile.fetch(
         userProfilePda as PublicKey,
       );
       setUserProfilePdaAccount(updatedProfile);
     } catch (err) {
       console.error("DM Error:", err);
-      // If you see "Seed constraint violated" now, log the seeds to compare
       toast.error("Failed to send DM");
     }
   }
+
+  async function handleProfileDelete() {
+    const tx = await program.methods.deleteUserProfile().rpc();
+    console.log(tx);
+  }
+
+  console.log("client  " + userProfilePda?.toString());
+  console.log(userProfilePdaAccount);
   return (
     <div className="w-full text-neutral-400 md:flex flex-col pt-[85px] h-screen justify-center">
       <div className="max-w-7xl mx-auto w-full flex lg:flex-row gap-8 px-4">
@@ -223,6 +193,13 @@ const SuperDM = () => {
             selectedInfluencer={selectedInfluencer}
             setSelectedInfluencer={setSelectedInfluencer}
           />
+          <div>{JSON.stringify(userProfilePdaAccount)}</div>
+          <button
+            className="bg-neutral-700 px-2 py-1 rounded-lg"
+            onClick={handleProfileDelete}
+          >
+            Delete User Profile
+          </button>
         </div>
       </div>
     </div>

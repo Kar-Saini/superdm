@@ -2,7 +2,6 @@ use anchor_lang::prelude::*;
 use crate::state::{DM, InfluencerProfile, UserProfile};
 
 #[derive(Accounts)]
-#[instruction(user_profile_dm_count:u64)]
 pub struct InitDm<'info> {
     #[account(mut)]
     pub sender: Signer<'info>,
@@ -16,10 +15,11 @@ pub struct InitDm<'info> {
         init, 
         payer = sender, 
         space = 8 + DM::INIT_SPACE, 
-        seeds = [b"dm", sender.key().as_ref(), &user_profile_dm_count.to_le_bytes()], 
+        seeds = [b"dm", sender.key().as_ref(), &user_profile.dm_count.to_le_bytes()], 
         bump
     )]
-    pub dm :Account<'info, DM>, 
+    pub dm: Account<'info, DM>, 
+    #[account(mut)]
     pub influencer: SystemAccount<'info>,
     #[account(
         seeds = [b"influencer", influencer.key().as_ref()],

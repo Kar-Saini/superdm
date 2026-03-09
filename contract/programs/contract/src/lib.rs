@@ -25,23 +25,20 @@ pub mod contract {
         Ok(())
     }
 
+    pub fn delete_user_profile(_ctx: Context<DeleteUserProfile>) -> Result<()> {
+        Ok(())
+    }
     pub fn init_user_profile(ctx: Context<InitUserProfile>) -> Result<()> {
         let user_profile = &mut ctx.accounts.user_profile;
         user_profile.dm_count = 0;
-        user_profile.owner = user_profile.key();
+        user_profile.owner = *ctx.accounts.user.key;
         Ok(())
     }
 
-    pub fn init_dm(
-        ctx: Context<InitDm>,
-        sol_attached: u64,
-        message: String,
-        _user_profile_dm_count: u64,
-    ) -> Result<()> {
+    pub fn init_dm(ctx: Context<InitDm>, sol_attached: u64, message: String) -> Result<()> {
         let dm = &mut ctx.accounts.dm;
         let sender = &mut ctx.accounts.sender;
         let influencer = &mut ctx.accounts.influencer;
-        let influencer_profile = &ctx.accounts.influencer_profile;
         let system_program = &ctx.accounts.system_program;
         let user_profile = &mut ctx.accounts.user_profile;
 
@@ -60,7 +57,7 @@ pub mod contract {
             ],
         )?;
 
-        user_profile.dm_count += 1;
+        user_profile.dm_count = user_profile.dm_count.saturating_add(1);
 
         Ok(())
     }

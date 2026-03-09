@@ -6,3 +6,6 @@ pub use init_dm::*;
 
 pub mod init_user_profile;
 pub use init_user_profile::*;
+
+pub mod delete_user_profile;
+pub use delete_user_profile::*;
