@@ -5,9 +5,8 @@ import Button from "../../_components/Button";
 import Influencers, { Influencer } from "./components/Influencer";
 import useProgram from "@/app/hooks/useProgram";
 import { LAMPORTS_PER_SOL, PublicKey } from "@solana/web3.js";
-import { useWallet } from "@solana/wallet-adapter-react";
+import { useConnection, useWallet } from "@solana/wallet-adapter-react";
 import { WalletMultiButton } from "@solana/wallet-adapter-react-ui";
-import { connection, PROGRAM_ID } from "@/app/lib/constants";
 import toast from "react-hot-toast";
 import { BN } from "@coral-xyz/anchor";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -16,6 +15,7 @@ import useAllInfluencers from "@/app/hooks/useAllInfluencers";
 const SuperDM = () => {
   const program = useProgram();
   const wallet = useWallet();
+  const { connection } = useConnection();
   const router = useRouter();
   const searchParams = useSearchParams();
   const allInfluencers = useAllInfluencers();
@@ -78,7 +78,7 @@ const SuperDM = () => {
           wallet.publicKey!.toBuffer(),
           influencerPk.toBuffer(),
         ],
-        PROGRAM_ID,
+        program.programId,
       );
 
       const inboxAccount =
@@ -93,7 +93,7 @@ const SuperDM = () => {
           .accounts({
             influencerProfile: PublicKey.findProgramAddressSync(
               [Buffer.from("influencer"), influencerPk.toBuffer()],
-              PROGRAM_ID,
+              program.programId,
             )[0],
             user: wallet.publicKey!,
           })
