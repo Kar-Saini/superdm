@@ -2,10 +2,10 @@
 
 import { AnchorProvider, Idl, Program } from "@coral-xyz/anchor";
 import { AnchorWallet, useWallet } from "@solana/wallet-adapter-react";
-import idl from "../contract/target/idl/contract.json";
+import idl from "../contract_integration/contract.json";
 import { connection } from "../lib/constants";
 import { useMemo } from "react";
-import { Contract } from "../contract/target/types/contract";
+import { Contract } from "../contract_integration/contract";
 
 export default function useProgram() {
   const wallet = useWallet();

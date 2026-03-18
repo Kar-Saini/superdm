@@ -1,0 +1,363 @@
+{
+  "address": "72NEPQQkE1kYQ1A2fMUXxkcCbya7vf7nxVvJdpBrJeCC",
+  "metadata": {
+    "name": "contract",
+    "version": "0.1.0",
+    "spec": "0.1.0",
+    "description": "Created with Anchor"
+  },
+  "instructions": [
+    {
+      "name": "init_dm",
+      "discriminator": [
+        176,
+        40,
+        227,
+        232,
+        200,
+        73,
+        10,
+        74
+      ],
+      "accounts": [
+        {
+          "name": "user",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "influencer",
+          "writable": true
+        },
+        {
+          "name": "user_influencer_inbox",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  105,
+                  110,
+                  98,
+                  111,
+                  120
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "user"
+              },
+              {
+                "kind": "account",
+                "path": "influencer"
+              }
+            ]
+          }
+        },
+        {
+          "name": "dm",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  100,
+                  109
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "user"
+              },
+              {
+                "kind": "account",
+                "path": "influencer"
+              },
+              {
+                "kind": "account",
+                "path": "user_influencer_inbox.dm_count",
+                "account": "UserInfluencerInbox"
+              }
+            ]
+          }
+        },
+        {
+          "name": "influencer_profile",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  105,
+                  110,
+                  102,
+                  108,
+                  117,
+                  101,
+                  110,
+                  99,
+                  101,
+                  114
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "influencer"
+              }
+            ]
+          }
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "sol_attached",
+          "type": "u64"
+        },
+        {
+          "name": "message",
+          "type": "string"
+        }
+      ]
+    },
+    {
+      "name": "init_influencer_profile",
+      "discriminator": [
+        241,
+        203,
+        63,
+        33,
+        228,
+        135,
+        253,
+        171
+      ],
+      "accounts": [
+        {
+          "name": "influencer",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "influencer_profile",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  105,
+                  110,
+                  102,
+                  108,
+                  117,
+                  101,
+                  110,
+                  99,
+                  101,
+                  114
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "influencer"
+              }
+            ]
+          }
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "name": "categories",
+          "type": "string"
+        }
+      ]
+    },
+    {
+      "name": "init_user_influcencer_inbox",
+      "discriminator": [
+        250,
+        228,
+        207,
+        56,
+        117,
+        63,
+        224,
+        177
+      ],
+      "accounts": [
+        {
+          "name": "user",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "influencer_profile"
+        },
+        {
+          "name": "user_influencer_inbox",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  105,
+                  110,
+                  98,
+                  111,
+                  120
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "user"
+              },
+              {
+                "kind": "account",
+                "path": "influencer_profile.public_key",
+                "account": "InfluencerProfile"
+              }
+            ]
+          }
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": []
+    }
+  ],
+  "accounts": [
+    {
+      "name": "DM",
+      "discriminator": [
+        135,
+        247,
+        32,
+        127,
+        159,
+        140,
+        233,
+        64
+      ]
+    },
+    {
+      "name": "InfluencerProfile",
+      "discriminator": [
+        15,
+        28,
+        67,
+        52,
+        237,
+        147,
+        27,
+        135
+      ]
+    },
+    {
+      "name": "UserInfluencerInbox",
+      "discriminator": [
+        41,
+        55,
+        233,
+        200,
+        36,
+        97,
+        187,
+        244
+      ]
+    }
+  ],
+  "errors": [
+    {
+      "code": 6000,
+      "name": "InvalidInfluencer",
+      "msg": "Invalid influencer profile"
+    }
+  ],
+  "types": [
+    {
+      "name": "DM",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "sender_pubkey",
+            "type": "pubkey"
+          },
+          {
+            "name": "influencer_pubkey",
+            "type": "pubkey"
+          },
+          {
+            "name": "sol_attached",
+            "type": "u64"
+          },
+          {
+            "name": "message",
+            "type": "string"
+          }
+        ]
+      }
+    },
+    {
+      "name": "InfluencerProfile",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "name",
+            "type": "string"
+          },
+          {
+            "name": "categories",
+            "type": "string"
+          },
+          {
+            "name": "public_key",
+            "type": "pubkey"
+          },
+          {
+            "name": "total_dm_count",
+            "type": "u64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "UserInfluencerInbox",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "user",
+            "type": "pubkey"
+          },
+          {
+            "name": "influencer",
+            "type": "pubkey"
+          },
+          {
+            "name": "dm_count",
+            "type": "u64"
+          }
+        ]
+      }
+    }
+  ]
+}
