@@ -6,16 +6,10 @@ import { cn } from "../utils";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { WalletMultiButton } from "@solana/wallet-adapter-react-ui";
-import { connection, PROGRAM_ID } from "../lib/constants";
+import { connection } from "../lib/constants";
 import { useWallet } from "@solana/wallet-adapter-react";
-import { LAMPORTS_PER_SOL, PublicKey } from "@solana/web3.js";
-import useProgram from "../hooks/useProgram";
+import { LAMPORTS_PER_SOL } from "@solana/web3.js";
 import { MdDashboard } from "react-icons/md";
-
-interface UserProfile {
-  dmCount: number;
-  owner: PublicKey;
-}
 
 const navItems = [
   {
@@ -77,7 +71,7 @@ const Navbar = () => {
             ))}
           </div>
           <div className=" gap-2 items-center text-neutral-500 text-sm hidden md:flex">
-            <p className="">Balance : {balance?.toFixed(4)}</p>
+            <p className="">Balance : {balance?.toFixed(4)} SOL</p>
             <WalletMultiButton className="bg-pink-500" />
           </div>
         </div>

@@ -132,32 +132,6 @@ const HeroAnimation = () => {
       );
 
       // Payment badge
-      ctx.fillStyle = "rgba(255, 255, 255, 0.9)";
-      ctx.font = "10px Arial";
-      ctx.textAlign = "center";
-
-      const badgeX = phoneX + phoneWidth - 80;
-      const badgeY = phoneY + 130 - 15;
-
-      ctx.beginPath();
-      ctx.arc(badgeX, badgeY, 15, 0, Math.PI * 2);
-      ctx.fill();
-
-      // Draw a glowing circle around the 0.5 SOL badge
-      ctx.beginPath();
-      ctx.arc(badgeX, badgeY, 20, 0, Math.PI * 2);
-      const gradient = ctx.createRadialGradient(
-        badgeX,
-        badgeY,
-        15,
-        badgeX,
-        badgeY,
-        30,
-      );
-      gradient.addColorStop(0, "rgba(16, 185, 129, 0.4)");
-      gradient.addColorStop(1, "rgba(16, 185, 129, 0)");
-      ctx.fillStyle = gradient;
-      ctx.fill();
     };
 
     const roundedRect = (
