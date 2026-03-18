@@ -33,12 +33,16 @@ const Influencers = ({
             <div
               key={idx}
               className={`border  rounded-lg p-4 mb-3 flex gap-4  transition cursor-pointer ${
-                selectedInfluencer?.publicKey === influencer.publicKey
+                selectedInfluencer?.account.publicKey ===
+                influencer.account.publicKey
                   ? "border-blue-500 border-4"
                   : " border-neutral-800 hover:bg-neutral-800/30"
               }`}
               onClick={() => {
-                if (selectedInfluencer?.publicKey === influencer.publicKey)
+                if (
+                  selectedInfluencer?.account.publicKey ===
+                  influencer.account.publicKey
+                )
                   setSelectedInfluencer(null);
                 else setSelectedInfluencer(influencer);
               }}

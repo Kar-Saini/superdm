@@ -8,23 +8,30 @@ import { PROGRAM_ID } from "@/app/lib/constants";
 import { PublicKey } from "@solana/web3.js";
 import useProgram from "@/app/hooks/useProgram";
 import useAllInfluencers from "@/app/hooks/useAllInfluencers";
+
 interface InfluencerType {
   name: string;
   categories: string;
   publicKey: PublicKey;
 }
+
 const Page = () => {
   const wallet = useWallet();
   const program = useProgram();
   const [showModal, setShowModal] = useState(false);
+
   const [currentUserInfluencerProfile, setCurrentUserInfluencerProfile] =
     useState<InfluencerType | null>(null);
+
   const [newInfluencerData, setNewInfluencerData] = useState({
     name: "",
     categories: "",
+    minPrice: 0,
   });
+
   const [loading, setLoading] = useState(false);
   const allInfluencers = useAllInfluencers();
+
   const getCurrentUserInfluencerProfile = useCallback(
     async function getCurrentUserInfluencerProfile() {
       if (!program || !wallet.publicKey) return;
@@ -51,6 +58,7 @@ const Page = () => {
   async function handleInfluencerRegistration() {
     if (!program || !wallet.publicKey) return;
     setLoading(true);
+
     try {
       await program.methods
         .initInfluencerProfile(
@@ -70,11 +78,12 @@ const Page = () => {
       console.error(err);
       toast.error("Transaction Failed ❌");
     }
+
     setLoading(false);
   }
-  console.log(currentUserInfluencerProfile);
+
   return (
-    <div className="flex-1 mt-[100px] w-full px-6">
+    <div className="pt-[100px] w-full px-6  flex flex-col">
       <div className="flex justify-between items-center py-4">
         <h1 className="text-3xl font-bold text-emerald-400">Influencers</h1>
 
@@ -93,7 +102,8 @@ const Page = () => {
           />
         )}
       </div>
-      <div className="overflow-y-auto max-h-[450px] pr-2 custom-scrollbar">
+
+      <div className="flex-1 overflow-y-auto pr-2">
         {allInfluencers &&
           allInfluencers.map((influencer, index) => (
             <div
@@ -103,25 +113,35 @@ const Page = () => {
               <div className="rounded-full w-[50px] h-[50px] bg-gradient-to-br from-emerald-400 to-blue-600 flex items-center justify-center text-white font-bold text-xl shadow-glow">
                 {influencer.account.name.charAt(0)}
               </div>
+
               <div className="w-full">
                 <div className="flex justify-between items-center flex-wrap gap-1">
                   <p className="font-semibold text-base md:text-lg text-white group-hover:text-emerald-400 transition-colors">
                     {influencer.account.name}
                   </p>
+
                   <div className="flex gap-1 flex-wrap justify-end max-w-[60%]">
                     <span className="text-xs bg-neutral-800/80 text-emerald-400 px-2 py-0.5 rounded-full">
                       {influencer.account.categories}
                     </span>
                   </div>
                 </div>
+
                 <p className="text-xs text-neutral-500 truncate max-w-full">
+                  Influencer Profile Public Key (PDA) :
                   {JSON.stringify(influencer.publicKey)}
+                </p>
+
+                <p className="text-xs text-neutral-500 truncate max-w-full">
+                  Influencer Public Key :
+                  {JSON.stringify(influencer.account.publicKey)}
                 </p>
               </div>
             </div>
           ))}
       </div>
 
+      {/* Modal */}
       {showModal && (
         <div className="fixed inset-0 bg-black flex items-center justify-center z-50">
           <div className="bg-neutral-900 rounded-lg p-6 w-full max-w-md relative">
@@ -149,7 +169,7 @@ const Page = () => {
               />
 
               <input
-                placeholder="Categories"
+                placeholder="Categories (comma separated)"
                 className="bg-neutral-800 text-white p-2 rounded"
                 onChange={(e) =>
                   setNewInfluencerData((prev) => ({
@@ -163,6 +183,7 @@ const Page = () => {
                 title={loading ? "Submitting..." : "Submit"}
                 variant="outline"
                 onClick={handleInfluencerRegistration}
+                className="cursor-pointer py-2"
               />
             </div>
           </div>

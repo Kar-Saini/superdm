@@ -143,9 +143,6 @@ const HeroAnimation = () => {
       ctx.arc(badgeX, badgeY, 15, 0, Math.PI * 2);
       ctx.fill();
 
-      ctx.fillStyle = "rgba(16, 185, 129, 1)";
-      ctx.fillText("0.5 SOL", badgeX, badgeY + 1);
-
       // Draw a glowing circle around the 0.5 SOL badge
       ctx.beginPath();
       ctx.arc(badgeX, badgeY, 20, 0, Math.PI * 2);

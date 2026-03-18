@@ -9,6 +9,7 @@ interface DM {
     message: string;
     senderPubkey: PublicKey;
     solAttached: number;
+    influencerPubkey: PublicKey;
   };
   publicKey: PublicKey;
 }
@@ -17,7 +18,6 @@ const Dashboard = () => {
   const program = useProgram();
   const [dms, setDms] = useState<DM[]>([]);
   const [loading, setLoading] = useState(true);
-  console.log(typeof dms[0]?.account.solAttached);
 
   useEffect(() => {
     async function getAllDms() {
@@ -25,7 +25,12 @@ const Dashboard = () => {
       try {
         setLoading(true);
         const fetchedDms = await program.account.dm.all();
-        setDms(fetchedDms);
+        const mydms = fetchedDms.filter(
+          (dm) =>
+            dm.account.senderPubkey.toString() === wallet.publicKey?.toString(),
+        );
+        setDms(mydms);
+        console.log(mydms);
       } catch (e) {
         console.error("Failed to fetch DMs", e);
       } finally {
@@ -33,7 +38,7 @@ const Dashboard = () => {
       }
     }
     getAllDms();
-  }, [wallet.publicKey, program]);
+  }, []);
 
   return (
     <div className="overflow-y-auto w-full flex flex-col items-center justify-center px-4 sm:px-8 pt-28 pb-12">
@@ -55,7 +60,7 @@ const Dashboard = () => {
               const solAmount = (
                 dm.account.solAttached / LAMPORTS_PER_SOL
               ).toFixed(3);
-              const sender = dm.account.senderPubkey.toString();
+              const influencer = dm.account.influencerPubkey.toString();
 
               return (
                 <div
@@ -84,10 +89,10 @@ const Dashboard = () => {
 
                   <div className=" border-t border-neutral-800/60">
                     <span className="text-sm uppercase text-neutral-600 font-bold block mb-1 pt-2">
-                      Sender Address
+                      Influencer Address
                     </span>
                     <span className="text-xs font-mono text-neutral-400 bg-black/40 py-1 rounded block truncate">
-                      {sender}
+                      {influencer}
                     </span>
                   </div>
                 </div>

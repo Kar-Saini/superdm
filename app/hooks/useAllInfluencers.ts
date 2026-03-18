@@ -16,6 +16,7 @@ export default function useAllInfluencers() {
   useEffect(() => {
     async function fetchAllInfluencers() {
       const influencers = await program?.account.influencerProfile.all();
+      console.log(influencers);
       setAllInfluencers(influencers);
     }
     fetchAllInfluencers();

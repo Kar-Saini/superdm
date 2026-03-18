@@ -38,9 +38,7 @@ const Navbar = () => {
   const [mounted, setMounted] = useState(false);
   const [balance, setBalance] = useState<number | null>(null);
   const wallet = useWallet();
-  const program = useProgram();
-  const [userProfileAccount, setuserProfileAccount] =
-    useState<UserProfile | null>(null);
+
   useEffect(() => setMounted(true), []);
   useEffect(() => {
     async function getBalanace() {
@@ -48,20 +46,9 @@ const Navbar = () => {
       const bal = await connection.getBalance(wallet.publicKey);
       setBalance(bal / LAMPORTS_PER_SOL);
     }
-    async function getUserProfile() {
-      if (!wallet.publicKey) return;
-      const [userPda] = PublicKey.findProgramAddressSync(
-        [Buffer.from("user_profile"), wallet.publicKey?.toBuffer()],
-        PROGRAM_ID,
-      );
-      const userProfile = await program.account.userProfile.fetch(userPda);
-      setuserProfileAccount(userProfile);
-    }
     getBalanace();
-    getUserProfile();
-  }, [wallet, program.account.userProfile]);
+  }, [wallet]);
   const pathname = usePathname();
-  console.log(userProfileAccount);
   if (!mounted) return <></>;
   return (
     <nav className="w-5/6 py-2 px-4 fixed top-0 z-50">
@@ -91,13 +78,6 @@ const Navbar = () => {
           </div>
           <div className=" gap-2 items-center text-neutral-500 text-sm hidden md:flex">
             <p className="">Balance : {balance?.toFixed(4)}</p>
-            {userProfileAccount && (
-              <>
-                <p>|</p>
-                <p>User DM Count : {Number(userProfileAccount.dmCount)}</p>
-                <p>|</p>
-              </>
-            )}
             <WalletMultiButton className="bg-pink-500" />
           </div>
         </div>

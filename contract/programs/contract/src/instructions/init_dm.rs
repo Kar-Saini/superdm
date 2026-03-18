@@ -1,26 +1,26 @@
 use anchor_lang::prelude::*;
-use crate::state::{DM, InfluencerProfile, UserProfile};
+use crate::state::{DM, InfluencerProfile, UserInfluencerInbox};
 
 #[derive(Accounts)]
 pub struct InitDm<'info> {
     #[account(mut)]
-    pub sender: Signer<'info>,
+    pub user: Signer<'info>,
+     #[account(mut)]
+    pub influencer: SystemAccount<'info>,
     #[account(
         mut, 
-        seeds = [b"user_profile", sender.key().as_ref()], 
+        seeds = [b"inbox", user.key().as_ref(), influencer.key().as_ref()], 
         bump
     )]
-    pub user_profile : Account<'info, UserProfile>,
+    pub user_influencer_inbox : Account<'info, UserInfluencerInbox>,
     #[account(
         init, 
-        payer = sender, 
+        payer = user, 
         space = 8 + DM::INIT_SPACE, 
-        seeds = [b"dm", sender.key().as_ref(), &user_profile.dm_count.to_le_bytes()], 
+        seeds = [b"dm", user.key().as_ref(), influencer.key().as_ref(), &user_influencer_inbox.dm_count.to_le_bytes()], 
         bump
     )]
     pub dm: Account<'info, DM>, 
-    #[account(mut)]
-    pub influencer: SystemAccount<'info>,
     #[account(
         seeds = [b"influencer", influencer.key().as_ref()],
         bump
