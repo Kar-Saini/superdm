@@ -3,7 +3,6 @@ import React, { useCallback, useEffect, useState } from "react";
 import Button from "../../_components/Button";
 import { useWallet } from "@solana/wallet-adapter-react";
 import toast from "react-hot-toast";
-import { PROGRAM_ID } from "@/app/lib/constants";
 import { PublicKey } from "@solana/web3.js";
 import useProgram from "@/app/hooks/useProgram";
 import useAllInfluencers from "@/app/hooks/useAllInfluencers";
@@ -33,7 +32,7 @@ const Page = () => {
     if (!program || !wallet.publicKey) return;
     const [pda] = PublicKey.findProgramAddressSync(
       [Buffer.from("influencer"), wallet.publicKey.toBuffer()],
-      PROGRAM_ID,
+      program.programId,
     );
     try {
       const account = await program.account.influencerProfile.fetch(pda);

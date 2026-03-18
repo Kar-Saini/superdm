@@ -6,8 +6,7 @@ import { cn } from "../utils";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { WalletMultiButton } from "@solana/wallet-adapter-react-ui";
-import { connection } from "../lib/constants";
-import { useWallet } from "@solana/wallet-adapter-react";
+import { useConnection, useWallet } from "@solana/wallet-adapter-react";
 import { LAMPORTS_PER_SOL } from "@solana/web3.js";
 import { MdDashboard } from "react-icons/md";
 
@@ -29,6 +28,7 @@ const navItems = [
   },
 ];
 const Navbar = () => {
+  const { connection } = useConnection();
   const [mounted, setMounted] = useState(false);
   const [balance, setBalance] = useState<number | null>(null);
   const wallet = useWallet();
