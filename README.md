@@ -1,36 +1,109 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 📨 SuperDM
 
-## Getting Started
+> A decentralized direct messaging protocol on Solana — enabling users to send on-chain messages to influencers via a funded inbox.
 
-First, run the development server:
+---
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+## 🧠 What is SuperDM?
+
+SuperDM is a Solana program built with Anchor that lets users send direct messages to influencers on-chain. Users fund their personal inbox PDA and use those funds to send messages — creating a spam-resistant, pay-to-message communication layer on the blockchain.
+
+No middlemen. No centralized servers. Just wallets, PDAs, and messages.
+
+---
+
+## 🏗️ Program Architecture
+
+```
+SuperDM
+├── User Account         → stores user profile info
+├── Influencer Account   → stores influencer profile & inbox config
+├── UserInflInbox PDA    → unique inbox per (user, influencer) pair
+└── DM PDA               → individual on-chain message account
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### Accounts
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+| Account               | Description                                                           |
+| --------------------- | --------------------------------------------------------------------- |
+| `User`                | Represents a registered user in the protocol                          |
+| `Influencer`          | Represents an influencer with a configurable inbox                    |
+| `UserInfluencerInbox` | PDA derived from user + influencer — tracks message history & balance |
+| `DM`                  | Individual message account storing content and metadata               |
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+---
 
-## Learn More
+## 🚀 Getting Started
 
-To learn more about Next.js, take a look at the following resources:
+### Prerequisites
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+- [Rust](https://www.rust-lang.org/tools/install)
+- [Solana CLI](https://docs.solana.com/cli/install-solana-cli-tools)
+- [Anchor CLI](https://www.anchor-lang.com/docs/installation)
+- Node.js & Yarn
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+### Installation
 
-## Deploy on Vercel
+```bash
+git clone https://github.com/kar-saini/superdm
+cd superdm
+yarn install
+```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+### Build & Deploy (Devnet)
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+```bash
+anchor build
+anchor deploy --provider.cluster devnet
+```
+
+## 🛠️ Tech Stack
+
+| Layer          | Technology            |
+| -------------- | --------------------- |
+| Smart Contract | Anchor (Rust)         |
+| Blockchain     | Solana                |
+| RPC            | Helius                |
+| Frontend       | Next.js               |
+| Wallet         | Solana Wallet Adapter |
+| Deployment     | Vercel                |
+
+---
+
+## 📁 Project Structure
+
+```
+superdm/
+├── programs/
+│   └── superdm/
+│       └── src/
+│           ├── lib.rs
+│           ├── instructions/
+│           └── state/
+|
+├── app/               ← Next.js frontend
+│   ├── components/
+│   └── pages/
+└── Anchor.toml
+```
+
+---
+
+## 🔮 Roadmap (Future Upgrades)
+
+- [ ] Pay-to-DM (influencer sets price per message)
+- [ ] NFT-gated inbox (only holders can DM)
+- [ ] On-chain replies & message threading
+- [ ] Encrypted messages (X25519)
+- [ ] Anchor events for off-chain indexing
+- [ ] Tip/boost a message
+
+---
+
+## 📄 License
+
+MIT
+
+---
+
+Built on Solana ⚡
