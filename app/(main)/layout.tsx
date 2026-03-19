@@ -14,7 +14,12 @@ const MainLayout = ({
   children: React.ReactNode;
 }>) => {
   return (
-    <ConnectionProvider endpoint={"https://api.devnet.solana.com"}>
+    <ConnectionProvider
+      endpoint={
+        process.env.NEXT_PUBLIC_SOLANA_RPC_URL ||
+        "https://api.devnet.solana.com"
+      }
+    >
       <WalletProvider wallets={[]} autoConnect>
         <Toaster />
         <WalletModalProvider>
