@@ -7,6 +7,7 @@ import { PublicKey } from "@solana/web3.js";
 import useProgram from "@/app/hooks/useProgram";
 import useAllInfluencers from "@/app/hooks/useAllInfluencers";
 import { useRouter } from "next/navigation";
+import { User } from "lucide-react";
 
 interface InfluencerType {
   name: string;
@@ -113,54 +114,58 @@ const Page = () => {
             No influencers registered yet.
           </p>
         ) : (
-          allInfluencers
-            .filter(
-              (i) =>
-                i.account.publicKey.toString() !== wallet.publicKey?.toString(),
-            )
-            .map((influencer) => {
-              const walletAddr = influencer.account.publicKey?.toString() ?? "";
+          allInfluencers.map((influencer) => {
+            const walletAddr = influencer.account.publicKey?.toString() ?? "";
 
-              return (
-                <div
-                  key={influencer.publicKey.toString()}
-                  className="flex border border-neutral-800 rounded-xl p-4 mb-3
+            return (
+              <div
+                key={influencer.publicKey.toString()}
+                className="flex border border-neutral-800 rounded-xl p-4 mb-3
                   items-center gap-4 hover:border-emerald-500/30 
                   bg-neutral-950 transition-colors group"
-                >
-                  <div
-                    className="rounded-full w-[46px] h-[46px] flex-shrink-0
+              >
+                <div
+                  className="rounded-full w-[46px] h-[46px] flex-shrink-0
                   bg-gradient-to-br from-emerald-400 to-blue-600
                   flex items-center justify-center text-white font-bold text-lg"
-                  >
-                    {influencer.account.name.charAt(0).toUpperCase()}
-                  </div>
+                >
+                  {influencer.account.name.charAt(0).toUpperCase()}
+                </div>
 
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center justify-between gap-2 mb-1">
-                      <p className="font-semibold text-white group-hover:text-emerald-400 transition-colors">
-                        {influencer.account.name}
-                      </p>
-                    </div>
-                    <p className="text-xs text-neutral-500 py-1">
-                      {influencer.account.publicKey.toString()}
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center justify-between gap-2 mb-1">
+                    <p className="font-semibold text-white group-hover:text-emerald-400 transition-colors">
+                      {influencer.account.name}
                     </p>
-
-                    <div className="flex gap-1 flex-wrap py-2">
-                      {influencer.account.categories
-                        .split(",")
-                        .map((cat: string) => (
-                          <span
-                            key={cat}
-                            className="text-xs bg-neutral-800 text-neutral-400
-                        px-2 py-0.5 rounded-full"
-                          >
-                            {cat.trim()}
-                          </span>
-                        ))}
-                    </div>
                   </div>
+                  <p className="text-xs text-neutral-500 py-1">
+                    {influencer.account.publicKey.toString()}
+                  </p>
 
+                  <div className="flex gap-1 flex-wrap py-2">
+                    {influencer.account.categories
+                      .split(",")
+                      .map((cat: string) => (
+                        <span
+                          key={cat}
+                          className="text-xs bg-neutral-800 text-neutral-400
+                        px-2 py-0.5 rounded-full"
+                        >
+                          {cat.trim()}
+                        </span>
+                      ))}
+                  </div>
+                </div>
+
+                {influencer.account.publicKey.toString() ===
+                wallet.publicKey?.toString() ? (
+                  <div className="flex items-center gap-2 bg-emerald-500/10 border border-emerald-500/20 px-4 py-1.5 rounded-full">
+                    <User className="w-4 h-4 text-emerald-400" />
+                    <span className="text-sm font-medium text-emerald-400">
+                      You
+                    </span>
+                  </div>
+                ) : (
                   <button
                     onClick={() => router.push(`/superdm?to=${walletAddr}`)}
                     className="text-sm font-semibold px-4 py-2 bg-emerald-600
@@ -169,9 +174,10 @@ const Page = () => {
                   >
                     Send DM →
                   </button>
-                </div>
-              );
-            })
+                )}
+              </div>
+            );
+          })
         )}
       </div>
 
