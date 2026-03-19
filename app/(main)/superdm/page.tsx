@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import Button from "../../_components/Button";
 import Influencers, { Influencer } from "./components/Influencer";
 import useProgram from "@/app/hooks/useProgram";
@@ -249,4 +249,10 @@ const SuperDM = () => {
   );
 };
 
-export default SuperDM;
+export default function SUperDmPage() {
+  return (
+    <Suspense>
+      <SuperDM />
+    </Suspense>
+  );
+}

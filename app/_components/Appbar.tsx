@@ -41,7 +41,7 @@ const Navbar = () => {
       setBalance(bal / LAMPORTS_PER_SOL);
     }
     getBalanace();
-  }, [wallet]);
+  }, [wallet, connection]);
   const pathname = usePathname();
   if (!mounted) return <></>;
   return (
